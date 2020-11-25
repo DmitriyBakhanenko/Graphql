@@ -6,7 +6,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import {
   ApolloClient,
   InMemoryCache,
-  gql,
   ApolloProvider,
   createHttpLink
 } from '@apollo/client';
@@ -20,28 +19,12 @@ const httpLink = createHttpLink({
   uri: 'https://crwn-clothing.com/'
 });
 
-const cache = new InMemoryCache();
-
 const client = new ApolloClient({
   link: httpLink,
-  cache: cache
+  cache: new InMemoryCache()
 });
 
-client
-  .query({
-    query: gql`
-      {
-        getCollectionsByTitle(title: "jackets") {
-          id
-          title
-        }
-      }
-    `
-  })
-  .then(res => console.log(res))
-  .catch(err => console.log(err.message));
-
-ReactDOM.render(
+client.ReactDOM.render(
   <ApolloProvider client={client}>
     <Provider store={store}>
       <BrowserRouter>
