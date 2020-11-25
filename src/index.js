@@ -3,19 +3,53 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import {
+  ApolloClient,
+  InMemoryCache,
+  gql,
+  ApolloProvider,
+  createHttpLink
+} from '@apollo/client';
 
 import { store, persistor } from './redux/store';
 
 import './index.css';
 import App from './App';
 
+const httpLink = createHttpLink({
+  uri: 'https://crwn-clothing.com/'
+});
+
+const cache = new InMemoryCache();
+
+const client = new ApolloClient({
+  link: httpLink,
+  cache: cache
+});
+
+client
+  .query({
+    query: gql`
+      {
+        getCollectionsByTitle(title: "jackets") {
+          id
+          title
+        }
+      }
+    `
+  })
+  .then(res => console.log(res))
+  .catch(err => console.log(err.message));
+
 ReactDOM.render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <PersistGate persistor={persistor}>
-        <App />
-      </PersistGate>
-    </BrowserRouter>
-  </Provider>,
+  <ApolloProvider client={client}>
+    <Provider store={store}>
+      <BrowserRouter>
+        <PersistGate persistor={persistor}>
+          <App />
+        </PersistGate>
+      </BrowserRouter>
+    </Provider>
+  </ApolloProvider>,
   document.getElementById('root')
 );
